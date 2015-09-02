@@ -1,4 +1,4 @@
-package embeddedorient
+package testsupport
 
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
@@ -7,6 +7,7 @@ import java.util.regex.{Matcher, Pattern}
 
 import com.orientechnologies.orient.server.{OServer, OServerMain}
 import de.is24.play.orientdb.{Dorway, OrientDbHttpClient, OrientClientConfig}
+import embeddedorient.TestHTTPClient
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.specs2.mutable.After
 import org.specs2.specification.Scope
@@ -15,8 +16,8 @@ import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 trait OrientDBScope extends Scope with After with FutureAwaits with DefaultAwaitTimeout with SpecificationFeatures {
 

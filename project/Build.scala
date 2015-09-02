@@ -27,7 +27,7 @@ object Build extends Build with Dependencies {
     }
 
 
-  )
+  ).enablePlugins(play.sbt.PlayScala)
 
 
 }
