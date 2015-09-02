@@ -6,8 +6,6 @@ import scala.language.implicitConversions
 
 class OrientSqlContext(stringContext: StringContext) {
 
-  private var escapedExpression: Any = _
-
   def sql(args: Any*): OrientDbQuery = {
     val strings = stringContext.parts.iterator
     val expressions = args.iterator
@@ -17,7 +15,7 @@ class OrientSqlContext(stringContext: StringContext) {
     for (string <- strings) {
       sqlBuilder.append(string)
       if (expressions.hasNext) {
-        escapedExpression = expressions.next() match {
+        val escapedExpression = expressions.next() match {
           case x: Number => x
           case s => "\"" + StringEscapeUtils.escapeJava(s.toString) + "\""
         }
