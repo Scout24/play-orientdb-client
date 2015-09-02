@@ -11,6 +11,7 @@ object Build extends Build with Dependencies {
 
   lazy val root = Project(id = "root", base = file("."), settings = Defaults.coreDefaultSettings ++ releaseSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings).settings(
     name := "play-orientdb-client",
+    organization := "de.is24",
     scalaVersion := "2.11.6",
     libraryDependencies ++= appDependencies ++ testDependencies,
     javacOptions ++= Seq("-source", javaVersion, "-target", javaVersion, "-Xlint"),
