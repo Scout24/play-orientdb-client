@@ -1,9 +1,9 @@
-package orient
+package de.is24.play.orientdb
 
-import de.is24.play.orientdb.{DeleteOperation, Operation}
+import de.is24.play.orientdb.client.OrientProtocol
+import de.is24.play.orientdb.client.OrientProtocol._
 import org.specs2.mutable.Specification
 import play.api.libs.json.Json
-import de.is24.play.orientdb.OrientProtocol._
 
 class OperationSpec extends Specification {
 

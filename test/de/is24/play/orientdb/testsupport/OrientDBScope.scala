@@ -1,4 +1,4 @@
-package testsupport
+package de.is24.play.orientdb.testsupport
 
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
@@ -6,8 +6,8 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.regex.{Matcher, Pattern}
 
 import com.orientechnologies.orient.server.{OServer, OServerMain}
-import de.is24.play.orientdb.{Dorway, OrientDbHttpClient, OrientClientConfig}
-import embeddedorient.TestHTTPClient
+import de.is24.play.orientdb.client.{OrientClientConfig, OrientDbHttpClient}
+import de.is24.play.orientdb.dorway.Dorway
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.specs2.mutable.After
 import org.specs2.specification.Scope

@@ -1,12 +1,10 @@
-package de.is24.play.orientdb
+package de.is24.play.orientdb.client
 
 import akka.event.slf4j.SLF4JLogging
+import de.is24.play.orientdb.{BatchOperation, OrientDbQuery}
 import play.api.libs.json._
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSRequest, WSResponse}
-
-import scala.concurrent.{ExecutionContext, Future}
 import OrientProtocol._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class OrientDbHttpClient(config: OrientClientConfig, wsClient: WSClient)(implicit ec: ExecutionContext) extends SLF4JLogging {

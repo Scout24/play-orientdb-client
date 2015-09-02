@@ -1,15 +1,16 @@
-package dorway
+package de.is24.play.orientdb.dorway
 
-import de.is24.play.orientdb.{Migration, Dorway, OrientDbHttpClient}
+import de.is24.play.orientdb.client.OrientDbHttpClient
+import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import org.specs2.mock.Mockito
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DorwaySpec extends Specification with Mockito with FutureAwaits with DefaultAwaitTimeout {
 
-  "A dorway" should {
+  "A de.is24.play.orientdb.dorway" should {
     "load migrations from path" in new WithDorway {
       val migrations = dorway.loadMigrationsFromPath("orient/migration")
 

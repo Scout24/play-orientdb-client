@@ -1,4 +1,4 @@
-package de.is24.play.orientdb
+package de.is24.play.orientdb.dorway
 
 import java.net.InetAddress
 import java.time.Instant
@@ -6,8 +6,10 @@ import java.util.Base64
 
 import com.google.common.reflect.ClassPath
 import de.is24.play.orientdb.Operation._
-import de.is24.play.orientdb.OrientProtocol._
+import de.is24.play.orientdb.client.{OrientDbHttpClient, OrientProtocol}
+import OrientProtocol._
 import de.is24.play.orientdb.OrientSqlContext._
+import de.is24.play.orientdb._
 import org.slf4j.LoggerFactory
 import play.api.libs.ws.WSResponse
 import resource.managed
@@ -130,14 +132,14 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
     if (lockSuccess)
       ()
     else {
-      log.warn("Failed to aquire dorway lock. Will retry in 10 seconds.")
+      log.warn("Failed to aquire de.is24.play.orientdb.dorway lock. Will retry in 10 seconds.")
       Thread.sleep(10.seconds.toMillis)
       lockDb()
     }
   }
 
   def unlockDb(): Future[Unit] = {
-    log.info("Unlocking dorway")
+    log.info("Unlocking de.is24.play.orientdb.dorway")
     sql"Update SchemaLock set lockedBy = null where lockedBy = $hostName and id=$lockId"
       .transactionally
       .execute

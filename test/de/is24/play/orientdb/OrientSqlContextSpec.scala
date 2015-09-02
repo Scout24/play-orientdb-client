@@ -1,7 +1,7 @@
-package orient
+package de.is24.play.orientdb
 
-import org.specs2.mutable.Specification
 import de.is24.play.orientdb.OrientSqlContext._
+import org.specs2.mutable.Specification
 
 class OrientSqlContextSpec extends Specification {
 

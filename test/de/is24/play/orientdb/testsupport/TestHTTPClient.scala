@@ -1,7 +1,7 @@
-package embeddedorient
+package de.is24.play.orientdb.testsupport
 
-import play.api.libs.ws.{WSClientConfig, WSClient}
-import play.api.libs.ws.ning.{NingWSClientConfig, NingWSClient, NingAsyncHttpClientConfigBuilder}
+import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient, NingWSClientConfig}
+import play.api.libs.ws.{WSClient, WSClientConfig}
 
 object TestHTTPClient {
   private val wSClientConfig =  new WSClientConfig(useProxyProperties = false)

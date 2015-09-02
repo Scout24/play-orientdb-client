@@ -1,9 +1,8 @@
-package embeddedorient
+package de.is24.play.orientdb
 
-import de.is24.play.orientdb.{CommandOperation, BatchOperation}
+import de.is24.play.orientdb.testsupport.OrientDBScope
 import org.specs2.mutable.Specification
-import play.api.test.{FutureAwaits, DefaultAwaitTimeout}
-import testsupport.OrientDBScope
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultAwaitTimeout {
 

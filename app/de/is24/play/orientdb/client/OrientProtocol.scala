@@ -1,5 +1,6 @@
-package de.is24.play.orientdb
+package de.is24.play.orientdb.client
 
+import de.is24.play.orientdb._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 

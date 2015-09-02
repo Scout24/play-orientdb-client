@@ -1,3 +1,3 @@
-package de.is24.play.orientdb
+package de.is24.play.orientdb.dorway
 
 case class Migration(version: Int, script: String)
