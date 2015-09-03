@@ -2,6 +2,7 @@ package de.is24.play.orientdb
 
 import de.is24.play.orientdb.testsupport.OrientDBScope
 import org.specs2.mutable.Specification
+import play.api.libs.json.JsValue
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import Operation._
 
@@ -29,6 +30,23 @@ class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultA
 
       await("INSERT INTO V SET notice = 'inserted transactionally'".transactionally.execute)
     }
+
+    "be able to execute functions" in new OrientDBScope {
+      implicit val client = orientClient
+      await("CREATE FUNCTION testFunction 'return 42' LANGUAGE javascript IDEMPOTENT false".asBatch().execute)
+
+      val result: JsValue = await(orientClient.callFunction("testFunction"))
+      ((result \ "result")(0) \ "value").as[Int] must beEqualTo(42)
+    }
+
+    "be able to execute functions with mixed parameters" in new OrientDBScope {
+      implicit val client = orientClient
+      await("CREATE FUNCTION testFunction 'return a + b + c' PARAMETERS [a, b, c] LANGUAGE javascript IDEMPOTENT false".asBatch().execute)
+
+      val result: JsValue = await(orientClient.callFunction("testFunction", Map[String, Any]("a" -> "42", "b" -> 42, "c" -> false)))
+      ((result \ "result")(0) \ "value").as[String] must beEqualTo("4242false")
+    }
+
   }
 
 }

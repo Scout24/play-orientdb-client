@@ -9,9 +9,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OrientDbHttpClient(config: OrientClientConfig, wsClient: WSClient)(implicit ec: ExecutionContext) extends SLF4JLogging {
 
+
   private val orientDbCommandUrl = s"${config.url}/command/${config.database}/sql"
 
   private val orientDbBatchUrl = s"${config.url}/batch/${config.database}"
+
+  private def orientDbFunctionUrl(name: String) = s"${config.url}/function/${config.database}/$name"
 
 
   def select[T: Reads](orientDbQuery: OrientDbQuery): Future[Seq[T]] = {
@@ -60,6 +63,24 @@ class OrientDbHttpClient(config: OrientClientConfig, wsClient: WSClient)(implici
       .url(createDatabaseUrl)
       .withAuth(config.userName, config.password, WSAuthScheme.BASIC)
       .withMethod("POST")
+    request
+      .execute()
+      .flatMap(handleErrorResponse(request))
+      .map(_.json)
+  }
+
+  def callFunction(name: String, parameters: Map[String, Any] = Map.empty): Future[JsValue] = {
+    val serializedParameters = JsObject(parameters.map {
+      case(parameterName, numericValue: Number) => parameterName -> JsNumber(BigDecimal.valueOf(numericValue.doubleValue))
+      case(parameterName, booleanValue: Boolean) => parameterName -> JsBoolean(booleanValue)
+      case(parameterName, anyValue: Any) => parameterName -> JsString(anyValue.toString)
+    })
+
+    val request: WSRequest = wsClient
+      .url(orientDbFunctionUrl(name))
+      .withAuth(config.userName, config.password, WSAuthScheme.BASIC)
+      .withMethod("POST")
+      .withBody(serializedParameters)
     request
       .execute()
       .flatMap(handleErrorResponse(request))
