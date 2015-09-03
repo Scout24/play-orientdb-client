@@ -38,17 +38,17 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
     val targetVersion = migrations.last.version
     getEventualConsistentDatabaseSchemaVersion.flatMap { currentVersion =>
       if (currentVersion < targetVersion)
-        doTheMigration()
+        doTheMigration(migrations)
       else
         Future.successful(())
     }
   }
 
-  private def doTheMigration(): Future[Unit] = {
+  private def doTheMigration(migrations: List[Migration]): Future[Unit] = {
     lockDb()
     for {
-      version <- getDatabaseSchemaVersionOrCreateIt
-      _ <- updateDatabaseSchema(version)
+      currentVersion <- getDatabaseSchemaVersionOrCreateIt
+      _ <- updateDatabaseSchema(currentVersion, migrations)
       _ <- unlockDb()
     } yield ()
   }
@@ -87,8 +87,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
   private def createSchemaClass: Future[WSResponse] =
     orientDbHttpClient.command(sql"Create class SchemaVersion")
 
-  def updateDatabaseSchema(currentVersion: Int): Future[Unit] = {
-    val allMigrations: List[Migration] = loadOrderedMigrationsFromPath("orient/migration")
+  def updateDatabaseSchema(currentVersion: Int, allMigrations: List[Migration]): Future[Unit] = {
     val migrationsToApply = allMigrations.filter(_.version > currentVersion)
     migrationsToApply.foldLeft(Future.successful(())) { (lastMigrationResult, nextMigration) =>
         lastMigrationResult
