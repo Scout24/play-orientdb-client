@@ -34,15 +34,35 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
   private val hostName = InetAddress.getLocalHost.getHostName
 
   def migrate(): Future[Unit] = {
+    val migrations = loadOrderedMigrationsFromPath("orient/migration")
+    val targetVersion = migrations.last.version
+    getEventualConsistentDatabaseSchemaVersion.flatMap { currentVersion =>
+      if (currentVersion < targetVersion)
+        doTheMigration()
+      else
+        Future.successful(())
+    }
+  }
+
+  private def doTheMigration(): Future[Unit] = {
     lockDb()
     for {
-      version <- getDatabaseSchemaVersion
+      version <- getDatabaseSchemaVersionOrCreateIt
       _ <- updateDatabaseSchema(version)
       _ <- unlockDb()
     } yield ()
   }
 
-  def getDatabaseSchemaVersion: Future[Int] = {
+  def getEventualConsistentDatabaseSchemaVersion: Future[Int] = {
+    isSchemaClassExistent.flatMap { schemaExists =>
+      if(schemaExists)
+        selectCurrentSchemaVersion
+      else
+        Future.successful(0)
+    }
+  }
+
+  def getDatabaseSchemaVersionOrCreateIt: Future[Int] = {
     isSchemaClassExistent.flatMap { schemaExists =>
       if(schemaExists)
         selectCurrentSchemaVersion
@@ -68,7 +88,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
     orientDbHttpClient.command(sql"Create class SchemaVersion")
 
   def updateDatabaseSchema(currentVersion: Int): Future[Unit] = {
-    val allMigrations: List[Migration] = loadMigrationsFromPath("orient/migration")
+    val allMigrations: List[Migration] = loadOrderedMigrationsFromPath("orient/migration")
     val migrationsToApply = allMigrations.filter(_.version > currentVersion)
     migrationsToApply.foldLeft(Future.successful(())) { (lastMigrationResult, nextMigration) =>
         lastMigrationResult
@@ -86,7 +106,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
       .map(_ => ())
   }
 
-  def loadMigrationsFromPath(path: String): List[Migration] = {
+  def loadOrderedMigrationsFromPath(path: String): List[Migration] = {
     val classPath = ClassPath.from(getClass.getClassLoader)
     val resources = classPath.getResources.asScala.toSeq
     log.info("Loading migrations")

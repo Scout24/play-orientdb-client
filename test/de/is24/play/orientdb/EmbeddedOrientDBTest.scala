@@ -18,7 +18,7 @@ class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultA
     "be able to perform dorway migration multiple times" in new OrientDBScope {
       executeDorway()
 
-      await(dorway.getDatabaseSchemaVersion) must beEqualTo(2)
+      await(dorway.getDatabaseSchemaVersionOrCreateIt) must beEqualTo(2)
     }
     "be able to execute batch commands" in new OrientDBScope {
       val batchOperation = BatchOperation(transaction = true, operations = Seq(CommandOperation(language = "sql", command = "SELECT 1")))
