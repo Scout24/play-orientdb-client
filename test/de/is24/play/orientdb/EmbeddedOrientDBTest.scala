@@ -2,7 +2,7 @@ package de.is24.play.orientdb
 
 import de.is24.play.orientdb.testsupport.OrientDBScope
 import org.specs2.mutable.Specification
-import play.api.libs.json.JsValue
+import play.api.libs.json. JsValue
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import Operation._
 
@@ -45,6 +45,16 @@ class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultA
 
       val result: JsValue = await(orientClient.callFunction("testFunction", Map[String, Any]("a" -> "42", "b" -> 42, "c" -> false)))
       ((result \ "result")(0) \ "value").as[String] must beEqualTo("4242false")
+    }
+
+    "be able to select json" in new OrientDBScope {
+      implicit val client = orientClient
+      await("INSERT INTO V set name = 'johnny'".asBatch().execute)
+
+      val selected = await(orientClient.selectJson(OrientDbQuery("SELECT FROM V")))
+
+      selected must haveSize(1)
+      (selected.head \ "name").as[String] must beEqualTo("johnny")
     }
 
   }

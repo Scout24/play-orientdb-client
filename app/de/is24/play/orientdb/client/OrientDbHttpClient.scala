@@ -31,6 +31,21 @@ class OrientDbHttpClient(config: OrientClientConfig, wsClient: WSClient)(implici
     }
   }
 
+
+  def selectJson(orientDbQuery: OrientDbQuery): Future[Seq[JsValue]] = {
+    command(orientDbQuery)
+      .flatMap { response =>
+      val json = response.json
+      log.debug("Received orient body {}", json)
+      (json \ "result").validate[JsArray] match {
+        case JsSuccess(result, _) =>
+          Future.successful(result.value)
+        case JsError(e) =>
+          Future.failed(new RuntimeException(s"Orient db call result has invalid body: $e"))
+      }
+    }
+  }
+
   def command(orientDbQuery: OrientDbQuery): Future[WSResponse] = {
     val request: WSRequest = wsClient
       .url(orientDbCommandUrl)
@@ -71,9 +86,9 @@ class OrientDbHttpClient(config: OrientClientConfig, wsClient: WSClient)(implici
 
   def callFunction(name: String, parameters: Map[String, Any] = Map.empty): Future[JsValue] = {
     val serializedParameters = JsObject(parameters.map {
-      case(parameterName, numericValue: Number) => parameterName -> JsNumber(BigDecimal.valueOf(numericValue.doubleValue))
-      case(parameterName, booleanValue: Boolean) => parameterName -> JsBoolean(booleanValue)
-      case(parameterName, anyValue: Any) => parameterName -> JsString(anyValue.toString)
+      case (parameterName, numericValue: Number) => parameterName -> JsNumber(BigDecimal.valueOf(numericValue.doubleValue))
+      case (parameterName, booleanValue: Boolean) => parameterName -> JsBoolean(booleanValue)
+      case (parameterName, anyValue: Any) => parameterName -> JsString(anyValue.toString)
     })
 
     val request: WSRequest = wsClient
