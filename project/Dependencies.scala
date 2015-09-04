@@ -7,7 +7,8 @@ trait Dependencies {
   val specs2Version = "3.6.1"
 
   val testDependencies = Seq(
-    "com.orientechnologies" % "orientdb-server" % "2.1.0",
+    "com.orientechnologies" % "orientdb-server" % "2.1.1",
+    "com.orientechnologies" % "orientdb-graphdb" % "2.1.1",
     "org.mockito" % "mockito-core" % "1.10.19" ,
     "org.specs2" %% "specs2-core" % specs2Version,
     "org.specs2" %% "specs2-matcher" % specs2Version,
