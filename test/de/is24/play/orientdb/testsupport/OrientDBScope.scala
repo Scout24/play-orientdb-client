@@ -70,7 +70,7 @@ trait OrientDBScope extends Scope with After with FutureAwaits with DefaultAwait
 
   def executeDorway(): Unit = {
 
-    Await.result(dorway.migrate(), 10.seconds)
+    Await.result(dorway.migrate(getClass.getClassLoader, "orient/migration"), 10.seconds)
   }
 
 }

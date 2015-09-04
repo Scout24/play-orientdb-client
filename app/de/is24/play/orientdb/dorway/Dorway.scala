@@ -33,8 +33,8 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
 
   private val hostName = InetAddress.getLocalHost.getHostName
 
-  def migrate(): Future[Unit] = {
-    val migrations = loadOrderedMigrationsFromPath("orient/migration")
+  def migrate(classLoader: ClassLoader, migrationsPath: String): Future[Unit] = {
+    val migrations = loadOrderedMigrationsFromPath(classLoader, migrationsPath)
     val targetVersion = migrations.last.version
     getEventualConsistentDatabaseSchemaVersion.flatMap { eventualConsistentVersion =>
       if (eventualConsistentVersion < targetVersion)
@@ -105,17 +105,16 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
       .map(_ => ())
   }
 
-  def loadOrderedMigrationsFromPath(path: String): List[Migration] = {
-    val classPath = ClassPath.from(getClass.getClassLoader)
-    val resources = classPath.getResources.asScala.toSeq
+  def loadOrderedMigrationsFromPath(classLoader: ClassLoader, migrationsPath: String): List[Migration] = {
+    val resources = ClassPath.from(classLoader).getResources.asScala.toSeq
     log.info("Loading migrations")
     val versionsAndContents = resources
-      .filter(_.getResourceName startsWith (path + "/"))
+      .filter(_.getResourceName startsWith (migrationsPath + "/"))
       .map { r => r.getResourceName.substring(r.getResourceName.lastIndexOf("/") + 1) }
       .map { r => r.split("__", 2)(0).toInt -> r }
       .map {
       case (version, file) =>
-        val content = managed(getClass.getClassLoader.getResource(s"$path/$file").openStream()).acquireAndGet { stream =>
+        val content = managed(getClass.getClassLoader.getResource(s"$migrationsPath/$file").openStream()).acquireAndGet { stream =>
           Source.fromInputStream(stream).mkString
         }
         Migration(version, content)
