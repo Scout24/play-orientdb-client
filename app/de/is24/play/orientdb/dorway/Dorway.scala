@@ -36,8 +36,8 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
   def migrate(classLoader: ClassLoader, migrationsPath: String): Future[Unit] = {
     val migrations = loadOrderedMigrationsFromPath(classLoader, migrationsPath)
     val targetVersion = migrations.last.version
-    getEventualConsistentDatabaseSchemaVersion.flatMap { eventualConsistentVersion =>
-      if (eventualConsistentVersion < targetVersion)
+    getPreliminarySchemaVersion.flatMap { preliminaryVersion =>
+      if (preliminaryVersion < targetVersion)
         doTheMigration(migrations)
       else
         Future.successful(())
@@ -47,14 +47,14 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
   private def doTheMigration(allMigrations: List[Migration]): Future[Unit] = {
     lockDb()
     for {
-      consistentCurrentVersion <- getDatabaseSchemaVersionOrCreateIt
-      migrationsToApply = allMigrations.filter(_.version > consistentCurrentVersion)
+      lockedSchemaVersion <- getDatabaseSchemaVersionOrCreateIt
+      migrationsToApply = allMigrations.filter(_.version > lockedSchemaVersion)
       _ <- updateDatabaseSchema(migrationsToApply)
       _ <- unlockDb()
     } yield ()
   }
 
-  def getEventualConsistentDatabaseSchemaVersion: Future[Int] = {
+  def getPreliminarySchemaVersion: Future[Int] = {
     isSchemaClassExistent.flatMap { schemaExists =>
       if(schemaExists)
         selectCurrentSchemaVersion
