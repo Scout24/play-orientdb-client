@@ -23,7 +23,7 @@ class OrientSqlContext(stringContext: StringContext) {
       }
     }
 
-    OrientDbQuery(sqlBuilder.toString())
+    OrientDbQuery(sqlBuilder.toString().trim)
   }
 
 }
