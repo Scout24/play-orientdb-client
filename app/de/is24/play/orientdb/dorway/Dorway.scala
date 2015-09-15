@@ -8,7 +8,7 @@ import com.google.common.reflect.ClassPath
 import de.is24.play.orientdb.Operation._
 import de.is24.play.orientdb.client.{OrientDbHttpClient, OrientProtocol}
 import OrientProtocol._
-import de.is24.play.orientdb.OrientSqlContext._
+import de.is24.play.orientdb.OrientStringContext._
 import de.is24.play.orientdb._
 import org.slf4j.LoggerFactory
 import play.api.libs.ws.WSResponse

@@ -10,7 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class OrientDbHttpClient(config: OrientClientConfig, wsClient: WSClient)(implicit ec: ExecutionContext) extends SLF4JLogging {
 
 
-  private val orientDbCommandUrl = s"${config.url}/command/${config.database}/sql"
+  private val orientDbCommandUrl = s"${config.url}/command/${config.database}/"
 
   private val orientDbBatchUrl = s"${config.url}/batch/${config.database}"
 
@@ -48,7 +48,7 @@ class OrientDbHttpClient(config: OrientClientConfig, wsClient: WSClient)(implici
 
   def command(orientDbQuery: OrientDbQuery): Future[WSResponse] = {
     val request: WSRequest = wsClient
-      .url(orientDbCommandUrl)
+      .url(orientDbCommandUrl + orientDbQuery.language)
       .withAuth(config.userName, config.password, WSAuthScheme.BASIC)
       .withMethod("POST")
       .withBody(orientDbQuery.query)

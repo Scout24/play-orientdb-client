@@ -9,7 +9,8 @@ trait Dependencies {
   val testDependencies = Seq(
     "com.orientechnologies" % "orientdb-server" % "2.1.1",
     "com.orientechnologies" % "orientdb-graphdb" % "2.1.1",
-    "org.mockito" % "mockito-core" % "1.10.19" ,
+    "com.tinkerpop.gremlin" % "gremlin-groovy" % "2.6.0",
+    "org.mockito" % "mockito-core" % "1.10.19",
     "org.specs2" %% "specs2-core" % specs2Version,
     "org.specs2" %% "specs2-matcher" % specs2Version,
     "org.specs2" %% "specs2-junit" % specs2Version,

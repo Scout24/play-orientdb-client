@@ -2,9 +2,10 @@ package de.is24.play.orientdb
 
 import de.is24.play.orientdb.testsupport.OrientDBScope
 import org.specs2.mutable.Specification
-import play.api.libs.json. JsValue
+import play.api.libs.json.JsValue
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import Operation._
+import OrientStringContext._
 
 class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultAwaitTimeout {
 
@@ -47,11 +48,21 @@ class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultA
       ((result \ "result")(0) \ "value").as[String] must beEqualTo("4242false")
     }
 
-    "be able to select json" in new OrientDBScope {
+    "be able to select json with sql" in new OrientDBScope {
       implicit val client = orientClient
       await("INSERT INTO V set name = 'johnny'".asBatch().execute)
 
-      val selected = await(orientClient.selectJson(OrientDbQuery("SELECT FROM V")))
+      val selected = await(orientClient.selectJson(sql"SELECT FROM V"))
+
+      selected must haveSize(1)
+      (selected.head \ "name").as[String] must beEqualTo("johnny")
+    }
+
+    "be able to select json with gremlin" in new OrientDBScope {
+      implicit val client = orientClient
+      await("INSERT INTO V set name = 'johnny'".asBatch().execute)
+
+      val selected = await(orientClient.selectJson(gremlin"g.V()"))
 
       selected must haveSize(1)
       (selected.head \ "name").as[String] must beEqualTo("johnny")
