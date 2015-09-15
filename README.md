@@ -1,5 +1,4 @@
-# Description
-
+# Orient Play Client [![Build Status](https://travis-ci.org/ImmobilienScout24/play-orientdb-client.svg)](https://travis-ci.org/ImmobilienScout24/play-orientdb-client)
 A play client to use the orient db http api.
 
 # Create client
