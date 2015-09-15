@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import java.util.regex.{Matcher, Pattern}
 
+import com.orientechnologies.orient.graph.gremlin.OGremlinHelper
 import com.orientechnologies.orient.server.{OServer, OServerMain}
 import de.is24.play.orientdb.client.{OrientClientConfig, OrientDbHttpClient}
 import de.is24.play.orientdb.dorway.Dorway
@@ -60,6 +61,7 @@ trait OrientDBScope extends Scope with After with FutureAwaits with DefaultAwait
 
   def startUp(): Unit = {
     server.networkInterface
+    OGremlinHelper.global().create()
     await(orientClient.createDatabase())
     executeDorway()
   }

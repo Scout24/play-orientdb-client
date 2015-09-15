@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <orient-server>
+    <handler class="com.orientechnologies.orient.graph.handler.OGraphServerHandler">
+        <parameters>
+            <parameter value="true" name="enabled"/>
+            <parameter value="50" name="graph.pool.max"/>
+        </parameters>
+    </handler>
+    <handler class="com.orientechnologies.orient.server.handler.OServerSideScriptInterpreter">
+        <parameters>
+            <parameter value="true" name="enabled"/>
+            <parameter value="SQL,gremlin" name="allowedLanguages"/>
+        </parameters>
+    </handler>
+
     <network>
         <protocols>
             <protocol name="http"
