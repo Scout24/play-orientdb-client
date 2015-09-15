@@ -18,7 +18,10 @@ object Build extends Build with Dependencies {
     scalacOptions ++= Seq("-feature", "-language:postfixOps", "-target:jvm-" + javaVersion, "-unchecked", "-deprecation", "-encoding", encoding),
     compileScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
     (compile in Compile) <<= (compile in Compile) dependsOn compileScalastyle,
-
+    resolvers ++= Seq(
+      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+    ), 
     publishTo := {
       val nexus = "http://nexus.rz.is/content/repositories/"
       if (isSnapshot.value)
