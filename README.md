@@ -9,8 +9,8 @@ val config = OrientClientConfig(
     userName = getConfigProperty("orientdb.username"),
     password = getConfigProperty("orientdb.password")
 )
-// the WS Client is provided by the NingWSComponents trait
-new OrientDbHttpClient(config, wsClient)
+// the actor system is provided by play
+new OrientDbHttpClient(config)(actorSystem)
 ```
 
 #Query
