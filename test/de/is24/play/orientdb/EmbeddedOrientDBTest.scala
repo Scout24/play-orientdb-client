@@ -32,6 +32,15 @@ class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultA
       await("INSERT INTO V SET notice = 'inserted transactionally'".transactionally.execute)
     }
 
+    "be able to execute commands that return no content" in new OrientDBScope {
+      val batchOperation = BatchOperation(transaction = true, operations = Seq(CommandOperation(language = "sql", command = "SELECT 1")))
+      await(orientClient.executeBatch(batchOperation))
+
+      implicit val client = orientClient
+      await(Seq("CREATE class Test extends V", "CREATE property Test.name string").asBatch().execute)
+      await(orientClient.command(sql"alter property Test.name mandatory true")) must not beNull
+    }
+
     "be able to execute functions" in new OrientDBScope {
       implicit val client = orientClient
       await("CREATE FUNCTION testFunction 'return 42' LANGUAGE javascript IDEMPOTENT false".asBatch().execute)

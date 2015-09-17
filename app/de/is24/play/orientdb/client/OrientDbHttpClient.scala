@@ -53,11 +53,15 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
 
   def command(orientDbQuery: OrientDbQuery): Future[JsValue] = {
     val entity = HttpEntity(orientDbQuery.query)
-    val request: HttpRequest = HttpRequest(uri = orientDbCommandUrl + orientDbQuery.language, entity = entity, method = HttpMethods.POST, headers = Seq[HttpHeader](authorization))
+    val request: HttpRequest = HttpRequest(
+      uri = orientDbCommandUrl + orientDbQuery.language,
+      entity = entity,
+      method = HttpMethods.POST,
+      headers = Seq[HttpHeader](authorization))
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
-      .flatMap { response => Unmarshal(response.entity).to[JsValue] }
+      .flatMap(unmarshalResponse)
   }
 
   def executeBatch(batchOperation: BatchOperation): Future[JsValue] = {
@@ -66,7 +70,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
-      .flatMap(r => Unmarshal(r.entity).to[JsValue])
+      .flatMap(unmarshalResponse)
   }
 
   def createDatabase(): Future[JsValue] = {
@@ -75,7 +79,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
-      .flatMap(r => Unmarshal(r.entity).to[JsValue])
+      .flatMap(unmarshalResponse)
   }
 
   def callFunction(name: String, parameters: Map[String, Any] = Map.empty): Future[JsValue] = {
@@ -91,9 +95,16 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
-      .flatMap(r => Unmarshal(r.entity).to[JsValue])
+      .flatMap(unmarshalResponse)
   }
 
+  private def unmarshalResponse(response: HttpResponse): Future[JsValue] = {
+    response.status match {
+      case StatusCodes.NoContent =>
+        Unmarshal(response.entity).to[String].map(JsString.apply)
+      case _ => Unmarshal(response.entity).to[JsValue]
+    }
+  }
   private def handleErrorResponse(request: HttpRequest)(response: HttpResponse): Future[HttpResponse] = {
     if (response.status.isFailure()) createErrorResponse(request, response)
     else Future.successful(response)
