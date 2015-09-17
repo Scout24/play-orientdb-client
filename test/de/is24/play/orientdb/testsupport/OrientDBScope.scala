@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import java.util.regex.{Matcher, Pattern}
 
+import akka.actor.ActorSystem
+import akka.testkit.TestKit
 import com.orientechnologies.orient.graph.gremlin.OGremlinHelper
 import com.orientechnologies.orient.server.{OServer, OServerMain}
 import de.is24.play.orientdb.client.{OrientClientConfig, OrientDbHttpClient}
@@ -20,6 +22,10 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
+object OrientDBScope {
+  val actorSystem = ActorSystem()
+}
+
 trait OrientDBScope extends Scope with After with FutureAwaits with DefaultAwaitTimeout with SpecificationFeatures {
 
   lazy val orientConfig = OrientClientConfig(
@@ -29,7 +35,7 @@ trait OrientDBScope extends Scope with After with FutureAwaits with DefaultAwait
     password = "root"
   )
 
-  lazy val orientClient = new OrientDbHttpClient(orientConfig, TestHTTPClient.wsClient)
+  lazy val orientClient = new OrientDbHttpClient(orientConfig)(OrientDBScope.actorSystem)
 
   lazy val dorway: Dorway = new Dorway(
     orientDbHttpClient = orientClient
@@ -72,7 +78,6 @@ trait OrientDBScope extends Scope with After with FutureAwaits with DefaultAwait
 
   def executeDorway(): Unit = {
 
-    Await.result(dorway.migrate(getClass.getClassLoader, "orient/migration"), 10.seconds)
+    Await.result(dorway.migrate(getClass.getClassLoader, "orient/migration"), 60.seconds)
   }
-
 }

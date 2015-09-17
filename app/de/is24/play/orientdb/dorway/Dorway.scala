@@ -4,6 +4,7 @@ import java.net.InetAddress
 import java.time.Instant
 import java.util.Base64
 
+import akka.http.scaladsl.model.HttpResponse
 import com.google.common.reflect.ClassPath
 import de.is24.play.orientdb.Operation._
 import de.is24.play.orientdb.client.{OrientDbHttpClient, OrientProtocol}
@@ -11,7 +12,7 @@ import OrientProtocol._
 import de.is24.play.orientdb.OrientStringContext._
 import de.is24.play.orientdb._
 import org.slf4j.LoggerFactory
-import play.api.libs.ws.WSResponse
+import play.api.libs.json.JsValue
 import resource.managed
 
 import scala.annotation.tailrec
@@ -85,7 +86,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
       .map(_.max.toInt)
   }
 
-  private def createSchemaClass: Future[WSResponse] =
+  private def createSchemaClass: Future[JsValue] =
     orientDbHttpClient.command(sql"Create class SchemaVersion")
 
   def updateDatabaseSchema(migrationsToApply: List[Migration]): Future[Unit] = {
@@ -100,7 +101,9 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
     orientDbHttpClient.command(OrientDbQuery(migration.script))
       .flatMap { _ =>
         val command = sql"insert into SchemaVersion set version = ${migration.version}, script = ${migration.script}, timestamp = ${Instant.now}"
-        orientDbHttpClient.command(command)
+        val f = orientDbHttpClient.command(command)
+        f.onSuccess{ case _ => log.info(s"Applied migration ${migration.version}")}
+        f
       }
       .map(_ => ())
   }
