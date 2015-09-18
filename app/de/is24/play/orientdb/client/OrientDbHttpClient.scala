@@ -7,7 +7,6 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.stream.ActorMaterializer
-import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import de.is24.play.orientdb.{BatchOperation, OrientDbQuery}
 import play.api.libs.json._
 import OrientProtocol._
@@ -15,7 +14,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.immutable._
 
-class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: ActorSystem) extends SLF4JLogging with PlayJsonSupport {
+class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: ActorSystem) extends SLF4JLogging {
 
   private implicit val ec = actorSystem.dispatcher
 
@@ -53,6 +52,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
 
   def command(orientDbQuery: OrientDbQuery): Future[JsValue] = {
     val entity = HttpEntity(orientDbQuery.query)
+    log.info("Execute command {}", orientDbQuery)
     val request: HttpRequest = HttpRequest(
       uri = orientDbCommandUrl + orientDbQuery.language,
       entity = entity,
@@ -67,6 +67,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
   def executeBatch(batchOperation: BatchOperation): Future[JsValue] = {
     val entity = HttpEntity(JsonContentType, Json.stringify(Json.toJson(batchOperation)))
     val request: HttpRequest = HttpRequest(uri = orientDbBatchUrl, entity = entity, method = HttpMethods.POST, headers = Seq[HttpHeader](authorization))
+    log.info("Execute batch {}", batchOperation)
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
@@ -75,7 +76,12 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
 
   def createDatabase(): Future[JsValue] = {
     val createDatabaseUrl = s"${config.url}/database/${config.database}/memory/graph"
-    val request: HttpRequest = HttpRequest(uri = createDatabaseUrl, entity = HttpEntity.empty(ContentTypes.NoContentType), method = HttpMethods.POST, headers = Seq[HttpHeader](authorization))
+    val request: HttpRequest = HttpRequest(
+      uri = createDatabaseUrl,
+      entity = HttpEntity.empty(ContentTypes.NoContentType),
+      method = HttpMethods.POST,
+      headers = Seq[HttpHeader](authorization)
+    )
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
@@ -90,7 +96,12 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
     })
 
     val entity = HttpEntity(JsonContentType, Json.stringify(Json.toJson(serializedParameters)))
-    val request: HttpRequest = HttpRequest(uri = orientDbFunctionUrl(name), entity = entity, method = HttpMethods.POST, headers = Seq[HttpHeader](authorization))
+    val request: HttpRequest = HttpRequest(
+      uri = orientDbFunctionUrl(name),
+      entity = entity,
+      method = HttpMethods.POST,
+      headers = Seq[HttpHeader](authorization)
+    )
 
     http
       .singleRequest(request)
@@ -102,7 +113,9 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
     response.status match {
       case StatusCodes.NoContent =>
         Unmarshal(response.entity).to[String].map(JsString.apply)
-      case _ => Unmarshal(response.entity).to[JsValue]
+      case _ =>
+        import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport._
+        Unmarshal(response.entity).to[JsValue]
     }
   }
   private def handleErrorResponse(request: HttpRequest)(response: HttpResponse): Future[HttpResponse] = {

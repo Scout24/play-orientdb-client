@@ -37,8 +37,8 @@ class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultA
       await(orientClient.executeBatch(batchOperation))
 
       implicit val client = orientClient
-      await(Seq("CREATE class Test extends V", "CREATE property Test.name string").asBatch().execute)
-      await(orientClient.command(sql"alter property Test.name mandatory true")) must not beNull
+      await(Seq("CREATE class Blubb extends V", "CREATE property Blubb.name string").asBatch().execute)
+      await(orientClient.command(sql"alter property Blubb.name mandatory true")) must not beNull
     }
 
     "be able to execute functions" in new OrientDBScope {
