@@ -52,7 +52,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
 
   def command(orientDbQuery: OrientDbQuery): Future[JsValue] = {
     val entity = HttpEntity(orientDbQuery.query)
-    log.info("Execute command {}", orientDbQuery)
+    log.debug("Execute command {}", orientDbQuery)
     val request: HttpRequest = HttpRequest(
       uri = orientDbCommandUrl + orientDbQuery.language,
       entity = entity,
@@ -67,7 +67,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
   def executeBatch(batchOperation: BatchOperation): Future[JsValue] = {
     val entity = HttpEntity(JsonContentType, Json.stringify(Json.toJson(batchOperation)))
     val request: HttpRequest = HttpRequest(uri = orientDbBatchUrl, entity = entity, method = HttpMethods.POST, headers = Seq[HttpHeader](authorization))
-    log.info("Execute batch {}", batchOperation)
+    log.debug("Execute batch {}", batchOperation)
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
