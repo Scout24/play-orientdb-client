@@ -2,7 +2,7 @@ import sbt._
 
 trait Dependencies {
 
-  val playVersion = "2.4.2"
+  val playVersion = "2.4.3"
 
   val specs2Version = "3.6.1"
 
@@ -20,7 +20,6 @@ trait Dependencies {
     "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
     "ch.qos.logback" % "logback-classic" % "1.1.2",
     "org.slf4j" % "log4j-over-slf4j" % "1.7.12",
-    "com.typesafe.play" %% "play-test" % playVersion,
     "com.ning" % "async-http-client" % "1.9.29",
     "org.jboss.netty" % "netty" % "3.2.10.Final",
     "com.typesafe.akka" %% "akka-testkit" % "2.3.14"
