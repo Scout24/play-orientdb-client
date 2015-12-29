@@ -2,7 +2,7 @@ import sbt._
 
 trait Dependencies {
 
-  val playVersion = "2.4.4"
+  val playVersion = "2.4.6"
 
   val specs2Version = "3.6.1"
 
