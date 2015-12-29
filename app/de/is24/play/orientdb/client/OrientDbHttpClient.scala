@@ -7,12 +7,15 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Sink, Source}
 import de.is24.play.orientdb.{BatchOperation, OrientDbQuery}
 import play.api.libs.json._
 import OrientProtocol._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.immutable._
+import scala.util.{Failure, Success}
+import scala.concurrent.duration._
 
 class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: ActorSystem) extends SLF4JLogging {
 
@@ -50,7 +53,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
     select[JsValue](orientDbQuery)
   }
 
-  def command(orientDbQuery: OrientDbQuery): Future[JsValue] = {
+  def command(orientDbQuery: OrientDbQuery, timeout: FiniteDuration = 30.seconds): Future[JsValue] = {
     val entity = HttpEntity(orientDbQuery.query)
     log.debug("Execute command {}", orientDbQuery)
     val request: HttpRequest = HttpRequest(
@@ -58,23 +61,33 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
       entity = entity,
       method = HttpMethods.POST,
       headers = Seq[HttpHeader](authorization))
-    http
-      .singleRequest(request)
+
+    executeRequest(request, timeout)
+  }
+
+  private def executeRequest(request: HttpRequest, timeout: FiniteDuration): Future[JsValue] = {
+    Source
+      .single(request -> 42)
+      .via(http.superPool[Int]())
+      .completionTimeout(timeout)
+      .map(_._1)
+      .runWith(Sink.head)
+      .flatMap {
+        case Success(r) => Future.successful(r)
+        case Failure(e) => Future.failed(e)
+      }
       .flatMap(handleErrorResponse(request))
       .flatMap(unmarshalResponse)
   }
 
-  def executeBatch(batchOperation: BatchOperation): Future[JsValue] = {
+  def executeBatch(batchOperation: BatchOperation, timeout: FiniteDuration = 30.seconds): Future[JsValue] = {
     val entity = HttpEntity(JsonContentType, Json.stringify(Json.toJson(batchOperation)))
     val request: HttpRequest = HttpRequest(uri = orientDbBatchUrl, entity = entity, method = HttpMethods.POST, headers = Seq[HttpHeader](authorization))
     log.debug("Execute batch {}", batchOperation)
-    http
-      .singleRequest(request)
-      .flatMap(handleErrorResponse(request))
-      .flatMap(unmarshalResponse)
+    executeRequest(request, timeout)
   }
 
-  def createDatabase(): Future[JsValue] = {
+  def createDatabase(timeout: FiniteDuration = 30.seconds): Future[JsValue] = {
     val createDatabaseUrl = s"${config.url}/database/${config.database}/memory/graph"
     val request: HttpRequest = HttpRequest(
       uri = createDatabaseUrl,
@@ -82,13 +95,10 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
       method = HttpMethods.POST,
       headers = Seq[HttpHeader](authorization)
     )
-    http
-      .singleRequest(request)
-      .flatMap(handleErrorResponse(request))
-      .flatMap(unmarshalResponse)
+    executeRequest(request, timeout)
   }
 
-  def callFunction(name: String, parameters: Map[String, Any] = Map.empty): Future[JsValue] = {
+  def callFunction(name: String, parameters: Map[String, Any] = Map.empty, timeout: FiniteDuration = 30.seconds): Future[JsValue] = {
     val serializedParameters = JsObject(parameters.map {
       case (parameterName, numericValue: Number) => parameterName -> JsNumber(BigDecimal.valueOf(numericValue.doubleValue))
       case (parameterName, booleanValue: Boolean) => parameterName -> JsBoolean(booleanValue)
@@ -103,10 +113,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
       headers = Seq[HttpHeader](authorization)
     )
 
-    http
-      .singleRequest(request)
-      .flatMap(handleErrorResponse(request))
-      .flatMap(unmarshalResponse)
+    executeRequest(request, timeout)
   }
 
   private def unmarshalResponse(response: HttpResponse): Future[JsValue] = {
