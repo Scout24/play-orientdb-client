@@ -30,9 +30,9 @@ trait Dependencies {
     "com.typesafe.play" %% "play-json" % playVersion % "provided",
     "org.apache.commons" % "commons-lang3" % "3.4",
     "com.jsuereth" %% "scala-arm" % "1.4",
-    "com.typesafe.akka" %% "akka-stream-experimental" % "1.0",
-    "com.typesafe.akka" %% "akka-http-core-experimental" % "1.0",
-    "com.typesafe.akka" %% "akka-http-experimental" % "1.0",
-    "de.heikoseeberger" %% "akka-http-play-json" % "1.1.0"
+    "com.typesafe.akka" %% "akka-stream-experimental" % "2.0.1",
+    "com.typesafe.akka" %% "akka-http-core-experimental" % "2.0.1",
+    "com.typesafe.akka" %% "akka-http-experimental" % "2.0.1",
+    "de.heikoseeberger" %% "akka-http-play-json" % "1.4.1"
   )
 }

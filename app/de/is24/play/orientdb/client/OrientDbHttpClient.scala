@@ -20,7 +20,7 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
 
   private implicit val materializer = ActorMaterializer()
 
-  private val JsonContentType = MediaTypes.`application/json`.withCharset(HttpCharsets.`UTF-8`)
+  private val JsonContentType = MediaTypes.`application/json`
 
   private val orientDbCommandUrl = s"${config.url}/command/${config.database}/"
 
