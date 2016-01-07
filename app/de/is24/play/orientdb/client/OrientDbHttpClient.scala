@@ -5,14 +5,13 @@ import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
-import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import de.is24.play.orientdb.{BatchOperation, OrientDbQuery}
 import play.api.libs.json._
 import OrientProtocol._
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.collection.immutable._
 import scala.util.{Failure, Success}
 import scala.concurrent.duration._
