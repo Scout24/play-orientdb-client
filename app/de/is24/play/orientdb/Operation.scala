@@ -15,9 +15,9 @@ case class CommandOperation(language: String, command: String) extends Operation
 case class ScriptOperation(language: String, script: Seq[String]) extends Operation
 
 object Operation {
-  def sqlScript(queries: String*) = new ScriptOperation(language = "sql", script = queries.toSeq)
+  def sqlScript(queries: String*): ScriptOperation = new ScriptOperation(language = "sql", script = queries.toSeq)
 
-  def sqlCommand(query: String) = new CommandOperation(language = "sql", command = query)
+  def sqlCommand(query: String): CommandOperation = new CommandOperation(language = "sql", command = query)
 
 
   class Batchable(queries: Seq[String]) {
@@ -27,7 +27,7 @@ object Operation {
       ))
     }
 
-    def transactionally = asBatch(transaction = true)
+    def transactionally: BatchOperation = asBatch(transaction = true)
   }
 
   implicit def stringToBatchable(query: String): Batchable = new Batchable(Seq(query))

@@ -5,5 +5,8 @@
 /project/target/
 /target/
 
+.ensime
+.ensime_cache
+
 .idea
 
