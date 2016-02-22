@@ -3,7 +3,7 @@ package de.is24.play.orientdb
 import de.is24.play.orientdb.testsupport.OrientDBScope
 import org.specs2.mutable.Specification
 import play.api.libs.json.JsValue
-import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import play.api.test.{ DefaultAwaitTimeout, FutureAwaits }
 import Operation._
 import OrientStringContext._
 

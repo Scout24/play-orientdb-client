@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.stream.ActorMaterializer
-import de.is24.play.orientdb.{BatchOperation, OrientDbQuery}
+import de.is24.play.orientdb.{ BatchOperation, OrientDbQuery }
 import play.api.libs.json._
 import OrientProtocol._
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -31,18 +31,17 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
 
   private val http = Http()
 
-
   def select[T: Reads](orientDbQuery: OrientDbQuery): Future[Seq[T]] = {
     command(orientDbQuery)
       .flatMap { responseJson =>
-      log.debug("Received orient body {}", responseJson)
-      (responseJson \ "result").validate[Seq[T]] match {
-        case JsSuccess(result, _) =>
-          Future.successful(result)
-        case JsError(e) =>
-          Future.failed(new RuntimeException(s"Orient db call result has invalid body: $e"))
+        log.debug("Received orient body {}", responseJson)
+        (responseJson \ "result").validate[Seq[T]] match {
+          case JsSuccess(result, _) =>
+            Future.successful(result)
+          case JsError(e) =>
+            Future.failed(new RuntimeException(s"Orient db call result has invalid body: $e"))
+        }
       }
-    }
   }
 
   def selectJson(orientDbQuery: OrientDbQuery): Future[Seq[JsValue]] = {
@@ -53,10 +52,11 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
     val entity = HttpEntity(orientDbQuery.query)
     log.debug("Execute command {}", orientDbQuery)
     val request: HttpRequest = HttpRequest(
-      uri = orientDbCommandUrl + orientDbQuery.language,
-      entity = entity,
-      method = HttpMethods.POST,
-      headers = Seq[HttpHeader](authorization))
+      uri     = orientDbCommandUrl + orientDbQuery.language,
+      entity  = entity,
+      method  = HttpMethods.POST,
+      headers = Seq[HttpHeader](authorization)
+    )
     http
       .singleRequest(request)
       .flatMap(handleErrorResponse(request))
@@ -76,9 +76,9 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
   def createDatabase(): Future[JsValue] = {
     val createDatabaseUrl = s"${config.url}/database/${config.database}/memory/graph"
     val request: HttpRequest = HttpRequest(
-      uri = createDatabaseUrl,
-      entity = HttpEntity.empty(ContentTypes.NoContentType),
-      method = HttpMethods.POST,
+      uri     = createDatabaseUrl,
+      entity  = HttpEntity.empty(ContentTypes.NoContentType),
+      method  = HttpMethods.POST,
       headers = Seq[HttpHeader](authorization)
     )
     http
@@ -89,16 +89,16 @@ class OrientDbHttpClient(config: OrientClientConfig)(implicit actorSystem: Actor
 
   def callFunction(name: String, parameters: Map[String, Any] = Map.empty): Future[JsValue] = {
     val serializedParameters = JsObject(parameters.map {
-      case (parameterName, numericValue: Number) => parameterName -> JsNumber(BigDecimal.valueOf(numericValue.doubleValue))
+      case (parameterName, numericValue: Number)  => parameterName -> JsNumber(BigDecimal.valueOf(numericValue.doubleValue))
       case (parameterName, booleanValue: Boolean) => parameterName -> JsBoolean(booleanValue)
-      case (parameterName, anyValue: Any) => parameterName -> JsString(anyValue.toString)
+      case (parameterName, anyValue: Any)         => parameterName -> JsString(anyValue.toString)
     })
 
     val entity = HttpEntity(JsonContentType, Json.stringify(Json.toJson(serializedParameters)))
     val request: HttpRequest = HttpRequest(
-      uri = orientDbFunctionUrl(name),
-      entity = entity,
-      method = HttpMethods.POST,
+      uri     = orientDbFunctionUrl(name),
+      entity  = entity,
+      method  = HttpMethods.POST,
       headers = Seq[HttpHeader](authorization)
     )
 

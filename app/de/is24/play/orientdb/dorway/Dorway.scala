@@ -7,7 +7,7 @@ import java.util.Base64
 import akka.http.scaladsl.model.HttpResponse
 import com.google.common.reflect.ClassPath
 import de.is24.play.orientdb.Operation._
-import de.is24.play.orientdb.client.{OrientDbHttpClient, OrientProtocol}
+import de.is24.play.orientdb.client.{ OrientDbHttpClient, OrientProtocol }
 import OrientProtocol._
 import de.is24.play.orientdb.OrientStringContext._
 import de.is24.play.orientdb._
@@ -18,7 +18,7 @@ import resource.managed
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.io.Source
 import scala.util.control.NonFatal
 
@@ -57,7 +57,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
 
   def getPreliminarySchemaVersion: Future[Int] = {
     isSchemaClassExistent.flatMap { schemaExists =>
-      if(schemaExists)
+      if (schemaExists)
         selectCurrentSchemaVersion
       else
         Future.successful(0)
@@ -66,7 +66,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
 
   def getDatabaseSchemaVersionOrCreateIt: Future[Int] = {
     isSchemaClassExistent.flatMap { schemaExists =>
-      if(schemaExists)
+      if (schemaExists)
         selectCurrentSchemaVersion
       else
         createSchemaClass.map(_ => 0)
@@ -76,7 +76,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
   private def isSchemaClassExistent: Future[Boolean] = {
     val query = sql"select count(*) from (select expand(classes) from metadata:schema) where name = $schemaVersionTable"
     orientDbHttpClient.select[CountResult](query)
-      .map {_.headOption.getOrElse(throw new IllegalStateException("Cant determine database schema version"))}
+      .map { _.headOption.getOrElse(throw new IllegalStateException("Cant determine database schema version")) }
       .map(_.count > 0)
   }
 
@@ -91,8 +91,8 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
 
   def updateDatabaseSchema(migrationsToApply: List[Migration]): Future[Unit] = {
     migrationsToApply.foldLeft(Future.successful(())) { (lastMigrationResult, nextMigration) =>
-        lastMigrationResult
-          .flatMap { _ => applyMigration(nextMigration)}
+      lastMigrationResult
+        .flatMap { _ => applyMigration(nextMigration) }
     }
   }
 
@@ -102,7 +102,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
       .flatMap { _ =>
         val command = sql"insert into SchemaVersion set version = ${migration.version}, script = ${migration.script}, timestamp = ${Instant.now}"
         val f = orientDbHttpClient.command(command)
-        f.onSuccess{ case _ => log.info(s"Applied migration ${migration.version}")}
+        f.onSuccess { case _ => log.info(s"Applied migration ${migration.version}") }
         f
       }
       .map(_ => ())
@@ -116,12 +116,12 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
       .map { r => r.getResourceName.substring(r.getResourceName.lastIndexOf("/") + 1) }
       .map { r => r.split("__", 2)(0).toInt -> r }
       .map {
-      case (version, file) =>
-        val content = managed(getClass.getClassLoader.getResource(s"$migrationsPath/$file").openStream()).acquireAndGet { stream =>
-          Source.fromInputStream(stream).mkString
-        }
-        Migration(version, content)
-    }
+        case (version, file) =>
+          val content = managed(getClass.getClassLoader.getResource(s"$migrationsPath/$file").openStream()).acquireAndGet { stream =>
+            Source.fromInputStream(stream).mkString
+          }
+          Migration(version, content)
+      }
     val versions = versionsAndContents.map(_.version)
     val uniqueVersions = versions.distinct
 
@@ -142,14 +142,14 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
 
     val lockSuccess = Await.result(createLockTableBatch.execute
       .recover {
-      case NonFatal(e) =>
-        log.info("Lock table probably already exists.", e)
-    }.flatMap { _ =>
-      sql"Update SchemaLock set lockedBy = $hostName where (lockedBy is null or lockedBy = $hostName) and id=$lockId".transactionally.execute
-    }.map { lockResponse =>
-      log.debug("{}", lockResponse)
-      (lockResponse \ "result").as[Seq[UpdateResult]].headOption.map(u => (0L +: u.value).max).getOrElse(0) == 1
-    }, 10.seconds)
+        case NonFatal(e) =>
+          log.info("Lock table probably already exists.", e)
+      }.flatMap { _ =>
+        sql"Update SchemaLock set lockedBy = $hostName where (lockedBy is null or lockedBy = $hostName) and id=$lockId".transactionally.execute
+      }.map { lockResponse =>
+        log.debug("{}", lockResponse)
+        (lockResponse \ "result").as[Seq[UpdateResult]].headOption.map(u => (0L +: u.value).max).getOrElse(0) == 1
+      }, 10.seconds)
     if (lockSuccess)
       ()
     else {
@@ -164,7 +164,7 @@ class Dorway(orientDbHttpClient: OrientDbHttpClient)(implicit executionContext: 
     sql"Update SchemaLock set lockedBy = null where lockedBy = $hostName and id=$lockId"
       .transactionally
       .execute
-      .map{response =>
+      .map { response =>
         log.debug(response.toString())
         ()
       }

@@ -5,6 +5,10 @@ import sbt._
 import com.typesafe.sbt.SbtPgp.autoImportImpl._
 import sbtrelease.ReleaseStateTransformations._
 
+import com.typesafe.sbt.SbtScalariform.autoImport._
+import com.typesafe.sbt.SbtScalariform._
+import scalariform.formatter.preferences._
+
 object Build extends Build with Dependencies {
 
   val javaVersion = "1.8"
@@ -15,7 +19,7 @@ object Build extends Build with Dependencies {
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = Defaults.coreDefaultSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings)
+    settings = Defaults.coreDefaultSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ defaultScalariformSettings)
     .settings(
       name := "play-orientdb-client",
       organization := "de.is24",
@@ -39,6 +43,17 @@ object Build extends Build with Dependencies {
         else
           Some("releases"  at nexus + "service/local/staging/deploy/maven2")
       },
+
+      /**
+        * scalariform
+        */
+      ScalariformKeys.preferences := ScalariformKeys.preferences.value
+        .setPreference(RewriteArrowSymbols, false)
+        .setPreference(AlignArguments, true)
+        .setPreference(DoubleIndentClassDeclaration, true)
+        .setPreference(AlignSingleLineCaseStatements, true)
+        .setPreference(SpacesAroundMultiImports, true)
+        .setPreference(AlignParameters, true),
 
       /**
         * publish

@@ -25,15 +25,16 @@ class OrientStringContext(stringContext: StringContext) {
       if (expressions.hasNext) {
         val escapedExpression = expressions.next() match {
           case x: Number => x
-          case s => "\"" + StringEscapeUtils.escapeJava(s.toString) + "\""
+          case s         => "\"" + StringEscapeUtils.escapeJava(s.toString) + "\""
         }
         queryBuilder.append(escapedExpression)
       }
     }
 
     OrientDbQuery(
-      query = queryBuilder.toString().trim,
-      language = language)
+      query    = queryBuilder.toString().trim,
+      language = language
+    )
   }
 
 }

@@ -19,7 +19,6 @@ object Operation {
 
   def sqlCommand(query: String): CommandOperation = new CommandOperation(language = "sql", command = query)
 
-
   class Batchable(queries: Seq[String]) {
     def asBatch(transaction: Boolean = false): BatchOperation = {
       new BatchOperation(transaction = transaction, operations = Seq(

@@ -2,20 +2,20 @@ package de.is24.play.orientdb.testsupport
 
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
-import java.util.regex.{Matcher, Pattern}
+import java.nio.file.{ Files, Path, Paths }
+import java.util.regex.{ Matcher, Pattern }
 
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
 import com.orientechnologies.orient.graph.gremlin.OGremlinHelper
-import com.orientechnologies.orient.server.{OServer, OServerMain}
-import de.is24.play.orientdb.client.{OrientClientConfig, OrientDbHttpClient}
+import com.orientechnologies.orient.server.{ OServer, OServerMain }
+import de.is24.play.orientdb.client.{ OrientClientConfig, OrientDbHttpClient }
 import de.is24.play.orientdb.dorway.Dorway
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.specs2.mutable.After
 import org.specs2.specification.Scope
 import org.specs2.specification.mutable.SpecificationFeatures
-import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import play.api.test.{ DefaultAwaitTimeout, FutureAwaits }
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.Await
@@ -29,7 +29,7 @@ object OrientDBScope {
 trait OrientDBScope extends Scope with After with FutureAwaits with DefaultAwaitTimeout with SpecificationFeatures {
 
   lazy val orientConfig = OrientClientConfig(
-    url = "http://localhost:2480",
+    url      = "http://localhost:2480",
     database = "temp",
     userName = "root",
     password = "root"

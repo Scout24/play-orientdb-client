@@ -5,7 +5,7 @@ import de.is24.play.orientdb.client.OrientDbHttpClient
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import play.api.test.{ DefaultAwaitTimeout, FutureAwaits }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -25,7 +25,6 @@ class DorwaySpec extends Specification with Mockito with FutureAwaits with Defau
       }
     }
   }
-
 
   private trait WithDorway extends Scope {
 

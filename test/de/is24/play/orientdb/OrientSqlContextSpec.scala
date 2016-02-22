@@ -18,7 +18,7 @@ class OrientSqlContextSpec extends Specification {
 
     "escape gremlin strings" in {
       val someValue = "123"
-      val  query = gremlin"""g.V("someKey", $someValue)"""
+      val query = gremlin"""g.V("someKey", $someValue)"""
 
       query.query must be equalTo """g.V("someKey", "123")"""
       query.language must be equalTo "gremlin"
