@@ -2,9 +2,9 @@ import sbt._
 
 trait Dependencies {
 
-  val playVersion = "2.4.6"
+  val playVersion = "2.5.0"
 
-  val specs2Version = "3.6.1"
+  val specs2Version = "3.7.2"
 
   val testDependencies = Seq(
     "com.orientechnologies" % "orientdb-server" % "2.1.1",
@@ -18,7 +18,7 @@ trait Dependencies {
     "junit" % "junit" % "4.12",
     "com.novocode" % "junit-interface" % "0.11",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
-    "ch.qos.logback" % "logback-classic" % "1.1.2",
+    "ch.qos.logback" % "logback-classic" % "1.1.4",
     "org.slf4j" % "log4j-over-slf4j" % "1.7.12",
     "com.ning" % "async-http-client" % "1.9.29",
     "org.jboss.netty" % "netty" % "3.2.10.Final",
@@ -30,9 +30,7 @@ trait Dependencies {
     "com.typesafe.play" %% "play-json" % playVersion % "provided",
     "org.apache.commons" % "commons-lang3" % "3.4",
     "com.jsuereth" %% "scala-arm" % "1.4",
-    "com.typesafe.akka" %% "akka-stream-experimental" % "2.0.1",
-    "com.typesafe.akka" %% "akka-http-core-experimental" % "2.0.1",
-    "com.typesafe.akka" %% "akka-http-experimental" % "2.0.1",
-    "de.heikoseeberger" %% "akka-http-play-json" % "1.4.1"
+    "com.typesafe.akka" %% "akka-http-experimental" % "2.4.2",
+    "de.heikoseeberger" %% "akka-http-play-json" % "1.5.2"
   )
 }
