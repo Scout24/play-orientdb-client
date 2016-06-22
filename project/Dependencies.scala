@@ -2,7 +2,7 @@ import sbt._
 
 trait Dependencies {
 
-  val playVersion = "2.5.2"
+  val playVersion = "2.5.4"
 
   val specs2Version = "3.7.2"
 
@@ -30,7 +30,7 @@ trait Dependencies {
     "com.typesafe.play" %% "play-json" % playVersion % "provided",
     "org.apache.commons" % "commons-lang3" % "3.4",
     "com.jsuereth" %% "scala-arm" % "1.4",
-    "com.typesafe.akka" %% "akka-http-experimental" % "2.4.3",
-    "de.heikoseeberger" %% "akka-http-play-json" % "1.5.2"
+    "com.typesafe.akka" %% "akka-http-experimental" % "2.4.7",
+    "de.heikoseeberger" %% "akka-http-play-json" % "1.7.0"
   )
 }
