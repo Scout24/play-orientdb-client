@@ -1,6 +1,7 @@
-#!/bin/bash
+READLINK="readlink"
+command -v greadlink > /dev/null 2>&1 && READLINK="greadlink"
 
-script=$(readlink -f "$0")
+script=$($READLINK -f "$0")
 
 scriptdir=$(dirname "$script")
 
