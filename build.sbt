@@ -8,10 +8,11 @@ val javaVersion = "1.8"
 val encoding = "utf-8"
 val playVersion = "2.5.4"
 val specs2Version = "3.7.2"
+val orientVersion = "2.2.3"
 
 val testDependencies = Seq(
-  "com.orientechnologies" % "orientdb-server" % "2.1.1",
-  "com.orientechnologies" % "orientdb-graphdb" % "2.1.1",
+  "com.orientechnologies" % "orientdb-server" % orientVersion,
+  "com.orientechnologies" % "orientdb-graphdb" % orientVersion,
   "com.tinkerpop.gremlin" % "gremlin-groovy" % "2.6.0",
   "org.mockito" % "mockito-core" % "1.10.19",
   "org.specs2" %% "specs2-core" % specs2Version,

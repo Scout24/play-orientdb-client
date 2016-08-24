@@ -41,22 +41,6 @@ class EmbeddedOrientDBTest extends Specification with FutureAwaits with DefaultA
       await(orientClient.command(sql"alter property Blubb.name mandatory true")) must not beNull
     }
 
-    "be able to execute functions" in new OrientDBScope {
-      implicit val client = orientClient
-      await("CREATE FUNCTION testFunction 'return 42' LANGUAGE javascript IDEMPOTENT false".asBatch().execute)
-
-      val result: JsValue = await(orientClient.callFunction("testFunction"))
-      ((result \ "result")(0) \ "value").as[Int] must beEqualTo(42)
-    }
-
-    "be able to execute functions with mixed parameters" in new OrientDBScope {
-      implicit val client = orientClient
-      await("CREATE FUNCTION testFunction 'return a + b + c' PARAMETERS [a, b, c] LANGUAGE javascript IDEMPOTENT false".asBatch().execute)
-
-      val result: JsValue = await(orientClient.callFunction("testFunction", Map[String, Any]("a" -> "42", "b" -> 42, "c" -> false)))
-      ((result \ "result")(0) \ "value").as[String] must beEqualTo("4242false")
-    }
-
     "be able to select json with sql" in new OrientDBScope {
       implicit val client = orientClient
       await("INSERT INTO V set name = 'johnny'".asBatch().execute)
