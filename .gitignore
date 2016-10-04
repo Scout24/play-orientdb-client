@@ -11,3 +11,4 @@
 .idea
 
 /project/local.sbt
+databases

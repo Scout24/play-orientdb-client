@@ -6,7 +6,7 @@ import scalariform.formatter.preferences._
 
 val javaVersion = "1.8"
 val encoding = "utf-8"
-val playVersion = "2.5.4"
+val playVersion = "2.5.8"
 val specs2Version = "3.7.2"
 val orientVersion = "2.2.3"
 
