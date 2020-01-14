@@ -1,6 +1,8 @@
 # Orient Play Client [![Build Status](https://travis-ci.org/ImmobilienScout24/play-orientdb-client.svg)](https://travis-ci.org/ImmobilienScout24/play-orientdb-client) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.is24/play-orientdb-client_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.is24/play-orientdb-client_2.11)
 A play client to use the orient db http api.
 
+# This project is DEPRECATED and not any longer supported
+
 # Create client
 ```scala
 val config = OrientClientConfig(
